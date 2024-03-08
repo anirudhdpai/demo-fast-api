@@ -35,3 +35,23 @@ def get_tasks(db: Session = Depends(get_db)):
 def get_task(task_id: int, db: Session = Depends(get_db)):
     data = db.query(Task).filter(Task.id == task_id).first()
     return data
+
+@app.put("/tasks/{task_id}")
+def update_task(task_id: int, item: schemas.TaskCreate, db: Session = Depends(get_db)):
+    data = db.query(Task).filter(Task.id == task_id).first()
+    if not data:
+        raise HTTPException(status_code=404, detail="Item not found")
+    data.name = item.name
+    data.description = item.description
+    data.due_date = item.due_date
+    db.commit()
+
+@app.delete("/tasks/{task_id}")
+def delete_task(task_id: int, db: Session = Depends(get_db)):
+    data = db.query(Task).filter(Task.id == task_id).first()
+    if not data:
+        raise HTTPException(status_code=404, detail="Item not found")
+    db.delete(data)
+    db.commit()
+    return {"message": "Item deleted"}
+ 
